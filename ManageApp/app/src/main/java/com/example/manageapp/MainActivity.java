@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -182,12 +183,45 @@ public class MainActivity extends AppCompatActivity {
                         JSONArray lessonJsonArray = new JSONArray();
 
                         dayCaller++;
+                        int b = 3;
+
                         for (int a = dayCaller; a < 10 + ((2 * 7) * round); a += 2) {
-                                JSONObject lessonObject = new JSONObject();
-                                lessonObject.put("lesson", dataArray[a][3]); // Добавляем урок
-                                lessonJsonArray.put(lessonObject);
+                            JSONObject lessonObject = new JSONObject();
+
+                            String[] lessonData = null;
+                            if (dataArray[a - 1][j] != null) {
+                                lessonData = dataArray[a - 1][j].split("\n");
+                            }
+
+                            if (dataArray[a][j] != null) {
+                                lessonObject.put("lesson", dataArray[a][j]); // Добавляем урок, если он не пустой
+
+                                if (lessonData != null && lessonData.length > 0) { // Проверяем, что lessonData не null
+                                    lessonObject.put("cabinet", lessonData[0]);
+                                } else {
+                                    lessonObject.put("cabinet", null); // Значение по умолчанию
+                                }
+                            } else {
+                                if (lessonData != null && lessonData.length > 0) { // Проверяем, что lessonData не null
+                                    lessonObject.put("lesson", lessonData[lessonData.length - 1]); // Добавляем урок, если он не пустой
+                                    lessonObject.put("cabinet", lessonData[0]);
+
+                                    if (j + 1 < dataArray[a].length && dataArray[a][j + 1] != null) {
+                                        String[] replacementLessonData = dataArray[a][j + 1].split("\n");
+                                        lessonObject.put("replacementLesson", replacementLessonData[replacementLessonData.length - 1]);
+                                        lessonObject.put("replacementCabinet", replacementLessonData[0]);
+                                    }
+                                } else {
+                                    lessonObject.put("lesson", null); // Значение по умолчанию
+                                    lessonObject.put("cabinet", null); // Значение по умолчанию
+                                }
+                            }
+
+                            lessonJsonArray.put(lessonObject);
+
                         }
-                        dayCaller += 2*7;
+
+                        dayCaller += 2 * 7;
                         round++;
 
                         // Добавляем массив "lesson" в объект "type"
